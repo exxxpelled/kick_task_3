@@ -4,12 +4,14 @@ import com.khmel.task.exception.CustomException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Storage {
   private static final Logger logger = LogManager.getLogger(Storage.class);
   private static final ReentrantLock lock = new ReentrantLock();
   private static Storage instance;
+  private static AtomicBoolean create = new AtomicBoolean(false);
   private final int maxCapacity;
   private int usedCapacity;
 
@@ -20,13 +22,16 @@ public class Storage {
   }
 
   public static Storage getInstance() {
-    try {
-      lock.lock();
-      if (instance == null) {
-        instance = new Storage();
+    if (!create.get()) {
+      try {
+        lock.lock();
+        if (instance == null) {
+          instance = new Storage();
+          create.set(true);
+        }
+      } finally {
+        lock.unlock();
       }
-    } finally {
-      lock.unlock();
     }
     return instance;
   }
