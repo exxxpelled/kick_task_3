@@ -57,7 +57,7 @@ public class User implements Callable<String> {
       if (!success) {
         attempts++;
         logger.warn("User-{} attempt {}/{} failed, retrying...", userId, attempts, MAX_ATTEMPTS);
-        changeState(); // пробуем другую операцию
+        changeState();
 
         try {
           TimeUnit.MILLISECONDS.sleep(RETRY_DELAY_MS * attempts);
